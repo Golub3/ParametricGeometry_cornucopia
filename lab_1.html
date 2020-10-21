@@ -8,8 +8,9 @@
 <script src=http://mrdoob.github.io/three.js/examples/js/controls/OrbitControls.js ></script>
 <script>
 
+    var camera, renderer, scene, controls;
 	var pi = Math.PI;
-	var x, y, z;
+    var x, y, z;
 
 	var scale = 5;
 
@@ -20,54 +21,74 @@
 	animate();
 
 	function init() {
-		document.body.style.cssText = 'margin: 0; overflow: hidden; ' ;
 
-		renderer = new THREE.WebGLRenderer( { alpha: 1, antialias: true, clearColor: 0xffffff }  );
+        renderer = new THREE.WebGLRenderer();
+        renderer.setClearColor(0x000000, 1);
 		renderer.setSize( window.innerWidth, window.innerHeight );
 		document.body.appendChild( renderer.domElement );
 		scene = new THREE.Scene();
 
-		camera = new THREE.PerspectiveCamera( 40, window.innerWidth / window.innerHeight, 1, 1000 );
-		camera.position.set( 300, 300, 500 );
+		camera = new THREE.PerspectiveCamera( 50, window.innerWidth / window.innerHeight, 1, 2000 );
+        camera.position.set( 0, 50, 400 );
         controls = new THREE.OrbitControls( camera, renderer.domElement);
         controls.rotateSpeed = 1.5;
 
         m = 0.2;
 	    p = 0.1;
-        geometry1_wf = new THREE.ParametricGeometry( curve1, 40, 40 );
-        geometry1 = new THREE.ParametricGeometry( curve1, 40, 40 );
+        var geometry1_wf = new THREE.ParametricGeometry( cornucopia, 50, 50 );
+        var geometry1 = new THREE.ParametricGeometry( cornucopia, 50, 50 );
         m = 0.1;
 	    p = 0.15;
-        geometry2_wf = new THREE.ParametricGeometry( curve2, 40, 40 );
-        geometry2 = new THREE.ParametricGeometry( curve2, 40, 40 );
+        var geometry2_wf = new THREE.ParametricGeometry( cornucopia, 50, 50 );
+        var geometry2 = new THREE.ParametricGeometry( cornucopia, 50, 50 );
 
-        material1_wf = new THREE.MeshNormalMaterial( { shading: THREE.SmoothShading, side: 2 } )
+        var material1_wf = new THREE.MeshNormalMaterial( { shading: THREE.SmoothShading, side: 2 } )
         material1_wf.wireframe = true;
-        material1 = new THREE.MeshNormalMaterial( { shading: THREE.SmoothShading, side: 2 } )
-        material2_wf = new THREE.MeshNormalMaterial( { shading: THREE.SmoothShading, side: 2 } )
+        var material1 = new THREE.MeshNormalMaterial( { shading: THREE.SmoothShading, side: 2 } )
+        var material2_wf = new THREE.MeshNormalMaterial( { shading: THREE.SmoothShading, side: 2 } )
         material2_wf.wireframe = true;
-        material2 = new THREE.MeshNormalMaterial( { shading: THREE.SmoothShading, side: 2 } )
+        var material2 = new THREE.MeshNormalMaterial( { shading: THREE.SmoothShading, side: 2 } )
 
-        mesh1_wf = new THREE.Mesh( geometry1_wf, material1_wf );
-        mesh1 = new THREE.Mesh( geometry1, material1 );
-        mesh1_wf.position.x = -100;
-        mesh1_wf.position.y = 100;
-        mesh1.position.x = 100;
-        mesh1.position.y = 100;
-        mesh2_wf = new THREE.Mesh( geometry2_wf, material2_wf );
-        mesh2 = new THREE.Mesh( geometry2, material1 );
-        mesh2_wf.position.x = -100;
-        mesh2_wf.position.y = -100;
-        mesh2.position.x = 100;
-        mesh2.position.y = -100;
+        var mesh1_wf = new THREE.Mesh( geometry1_wf, material1_wf );
+        var mesh1 = new THREE.Mesh( geometry1, material1 );
+        mesh1_wf.position.x = -70;
+        mesh1_wf.position.y = 40;
+        mesh1.position.x = 70;
+        mesh1.position.y = 40;
+        var mesh2_wf = new THREE.Mesh( geometry2_wf, material2_wf );
+        var mesh2 = new THREE.Mesh( geometry2, material1 );
+        mesh2_wf.position.x = -50;
+        mesh2_wf.position.y = -70;
+        mesh2.position.x = 50;
+        mesh2.position.y = -70;
 
         scene.add( mesh1_wf );
         scene.add( mesh1 );
         scene.add( mesh2_wf );
         scene.add( mesh2 );
+
+        var loader = new THREE.FontLoader();
+        loader.load( 'https://threejs.org/examples/fonts/helvetiker_regular.typeface.json', 
+        function ( font ) {
+            var text = new THREE.TextGeometry( 'Cornucopia', {
+                font: font,
+                size: 30,
+                height: 0.5,
+                curveSegments: 4,
+                bevelEnabled: true,
+                bevelThickness: 6,
+                bevelSize: 0.1,
+                bevelSegments: 3
+            } );
+            text.center();
+            var material = new THREE.MeshNormalMaterial();
+            var meshText = new THREE.Mesh( text, material );
+            meshText.position.y = 120;
+            scene.add( meshText );
+        } );
 	}
 
-	function curve1( u, v, target) {
+	function cornucopia( u, v, target) {
 		u = 4 * pi * ( u - 0.05 );
 		v = 2 * pi * ( v - 0.05 );
 
@@ -77,21 +98,10 @@
 
 		target.set( x, y, z );
     }
-    
-    function curve2( u, v, target) {
-		u = 5 * pi * ( u - 0.05 );
-		v = 2 * pi * ( v - 0.05 );
 
-		x = scale * (exp( m * u ) + exp( p * u ) * cos( v )) * cos( u );
-		y = scale * (exp( m * u ) + exp( p * u ) * cos( v )) * sin( u );
-		z = scale * exp( p * u ) * sin( v );
-
-		target.set( x, y, z );
-	}
-
+    function exp( a ){ return Math.exp( a ); }
 	function cos( a ){ return Math.cos( a ); }
 	function sin( a ){ return Math.sin( a ); }
-	function exp( a ){ return Math.exp( a ); }
 
 	function animate() {
 		requestAnimationFrame( animate );
